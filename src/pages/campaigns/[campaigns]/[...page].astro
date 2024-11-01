@@ -35,7 +35,7 @@ export async function getStaticPaths({ paginate }: { paginate: any }) {
  */
 
 interface BlogPostEntry {
-  slug: string;
+  id: string;
   data: {
     title: string;
     description: string;
@@ -178,7 +178,7 @@ const neverPosts = allCampaigns.filter((post) =>
               previousPage={page.url.prev ? page.url.prev : null}
               nextPage={page.url.next ? page.url.next : null}
               lastPage={page.url.next
-                ? `/archive/${Math.round(page.total / page.size)}`
+                ? `/campaigns/${Math.round(page.total / page.size)}`
                 : null}
               currentPage={page.currentPage}
               totalPages={Math.round(page.total / page.size)}
