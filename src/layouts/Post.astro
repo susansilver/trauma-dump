@@ -1,0 +1,176 @@
+---
+import Header from "../components/Header.astro";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import type { CollectionEntry } from "astro:content";
+import { getEntry } from "astro:content";
+
+interface Props {
+  frontmatter: CollectionEntry<"blog">["data"] & {
+    title: string;
+    pubdDate: string;
+    description: string;
+    pubDate: string;
+    campaign: string;
+    getRef: string;
+    prev?: string;
+    next?: string;
+  };
+}
+
+const { frontmatter } = Astro.props;
+
+const campaignData = await getEntry("campaignsList", frontmatter.getRef);
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={frontmatter.title} description={frontmatter.description} />
+  </head>
+
+  <body class="bg-accent-300">
+    <Header />
+    <main>
+      <article>
+        <div class="grid grid-cols-12">
+          <div
+            class="lg:col-span-8 lg:col-start-3 lg:col-end-11 col-span-10 col-start-2 col-end-12"
+          >
+            <h1>{frontmatter.title}</h1>
+            <div>
+              by Suzza Silver ✪ <time
+                datetime={new Date(frontmatter.pubDate).toISOString()}
+              >
+                Published on {
+                  new Date(frontmatter.pubDate).toLocaleDateString(undefined, {
+                    dateStyle: "medium",
+                    timeZone: "UTC",
+                  })
+                }
+              </time>
+              <div
+                class="border-l-2 border-blue-brand padding-left-xxl text-black-950 paragraph-width"
+              >
+                <slot />
+                <div class="flex flex-row justify-between items-center">
+                  {
+                    frontmatter.prev && frontmatter.prev.length > 0 && (
+                      <a
+                        href={frontmatter.prev}
+                        class="no-underline
+                text-white-50
+                hover:text-primary-300
+                visited:text-white-50
+                p-3
+                bg-blue-brand rounded-full"
+                      >
+                        <div class="max-w-fit">❮ Prev Episode</div>
+                      </a>
+                    )
+                  }
+                  {
+                    frontmatter.next && frontmatter.next.length > 0 && (
+                      <a
+                        href={frontmatter.next}
+                        class="no-underline
+                text-white-50
+                hover:text-primary-300
+                visited:text-white-50
+                p-3
+                bg-blue-brand rounded-full"
+                      >
+                        <div class="max-w-fit">Next Episode ❯</div>
+                      </a>
+                    )
+                  }
+                </div>
+              </div>
+              <aside>
+                <div
+                  id="meta"
+                  class="flex lg:flex-row flex-col gap-5 capitalize margin-top-xxl"
+                >
+                  {
+                    campaignData?.data.title !== "none" && (
+                      <p>
+                        Campaign:
+                        <a
+                          href={`/campaigns/${frontmatter.campaign}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData.data.title}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.dm !== "none" && (
+                      <p>
+                        GM:
+                        <a
+                          href={`/gm/${campaignData.data.dm}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData.data.dm.replace(/-/g, " ")}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.players &&
+                      campaignData.data.players[0] !== "none" && (
+                        <p>
+                          Players:
+                          <ul class="flex lg:flex-row flex-col flex-wrap gap-2 list-none lg:w-52">
+                            {campaignData.data.players.map((player) => (
+                              <li key={player}>
+                                <a
+                                  href={`/players/${player}`}
+                                  class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                                >
+                                  {player.replace(/-/g, " ")}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </p>
+                      )
+                  }
+
+                  {
+                    campaignData?.data.type !== "none" && (
+                      <p>
+                        Type:
+                        <a
+                          href={`/type/${campaignData.data.type}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData.data.type.replace(/-/g, " ")}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.series &&
+                      campaignData.data.series !== "none" && (
+                        <p>
+                          Series:
+                          <span class="text-white-50 p-3 bg-blue-brand">
+                            {campaignData.data.series}
+                          </span>
+                        </p>
+                      )
+                  }
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </article>
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,40 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+
+const allCampaigns = await getCollection("players");
+---
+
+<html lang="en">
+  <head>
+    <BaseHead
+      title="All Players"
+      description="An index of all the Dimension 20 players"
+    />
+  </head>
+
+  <body class="bg-accent-300">
+    <Header />
+    <main>
+      <div class="grid grid-cols-12">
+        <div
+          class="md:col-span-4 md:col-start-5 md:col-end-9 col-span-10 col-start-2 col-end-12"
+        >
+          <h1>Featured Players</h1>
+          <ul class="border-l-2 border-blue-brand padding-left-xxl">
+            {
+              allCampaigns.map((post) => (
+                <>
+                  <li>
+                    <a href={`/players/${post.slug}`}>{post.data.name}</a>
+                  </li>
+                </>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

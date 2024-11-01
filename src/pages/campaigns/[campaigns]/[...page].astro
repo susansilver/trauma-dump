@@ -1,0 +1,193 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "../../../components/BaseHead.astro";
+import Header from "../../../components/Header.astro";
+import Footer from "../../../components/Footer.astro";
+import { Pagination } from "accessible-astro-components";
+
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+  const allPosts = await getCollection("blog");
+
+  const sortedPosts = allPosts.sort(
+    (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
+  ); // Sort by pubDate descending
+
+  // Ensure allPosts have defined categories
+  const allCategories = [
+    ...new Set(
+      sortedPosts.flatMap((post) => post.data.campaign || []) // Default to an empty array if undefined
+    ),
+  ];
+
+  return allCategories.flatMap((campaigns) => {
+    const filteredPosts = allPosts.filter(
+      (post) => post.data.campaign && post.data.campaign.includes(campaigns)
+    );
+    return paginate(filteredPosts, {
+      params: { campaigns },
+      pageSize: 6,
+    });
+  });
+}
+/* interface Props {
+  entry: CollectionEntry<"blog">;
+}
+ */
+
+interface BlogPostEntry {
+  slug: string;
+  data: {
+    title: string;
+    description: string;
+    draft: boolean;
+    pubDate: string; // or Date if you prefer to parse it beforehand
+    campaign: string;
+    prev?: string;
+    next?: string;
+  };
+}
+
+interface Props {
+  page: {
+    data: BlogPostEntry[];
+    currentPage: number;
+    total: number;
+    size: number;
+    url: {
+      prev: string;
+      next: string;
+    };
+  };
+}
+
+const { page }: { page: Props["page"] } = Astro.props;
+const { params } = Astro;
+
+const allCampaigns = await getCollection("campaignsList");
+
+const neverPosts = allCampaigns.filter((post) =>
+  post.data.title?.includes("Neverafter")
+);
+---
+
+<html lang="en">
+  <head>
+    <BaseHead
+      title={params.campaigns.toLowerCase().replace(/-/g, " ")}
+      description={`Campaign archive for ${params.campaigns.replace(/-/g, " ")}`}
+    />
+  </head>
+
+  <body class="bg-accent-300 flex flex-col justify-between">
+    <Header />
+    <main>
+      <div class="grid grid-cols-12">
+        <div
+          class="lg:col-span-8 lg:col-start-3 lg:col-end-11 col-span-10 col-start-2 col-end-12"
+        >
+          {
+            params.campaigns === "neverafter" &&
+              (neverPosts.length === 0 ? (
+                <p>Nothing to see here.</p>
+              ) : (
+                neverPosts.map((post) => (
+                  <div>
+                    <h1>{post.data.title}</h1>
+                    <div
+                      class="capitalize flex lg:flex-row flex-col gap-5 margin-y-xxl"
+                      id="meta"
+                    >
+                      <p>
+                        GM:{" "}
+                        <a
+                          href={`/gm/${post.data.dm}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {post.data.dm.replace(/-/g, " ")}
+                        </a>
+                      </p>
+
+                      <p>Players:</p>
+                      <ul class="flex lg:flex-row flex-col flex-wrap gap-2 list-none lg:w-80">
+                        {post.data.players.map((player) => (
+                          <li class="p-3 bg-blue-brand text-white-50">
+                            <a
+                              href={`/players/${player}`}
+                              class="text-white-50 hover:text-primary-300 visited:text-white-50"
+                            >
+                              {player.replace(/-/g, " ")}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <p>
+                        Type:{" "}
+                        <a
+                          href={`/type/${post.data.type}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {post.data.type.replace(/-/g, " ")}
+                        </a>
+                      </p>
+
+                      {post.data.series && post.data.series.length > 0 && (
+                        <p>
+                          Series:{" "}
+                          <span class="text-white-50 p-3 bg-blue-brand">
+                            {post.data.series}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ))
+          }
+          {
+            params.campaigns === "short-story" && (
+              <h1 class="margin-y-xxl">Short Stories</h1>
+            )
+          }
+
+          <div class="flex flex-row gap-5 flex-wrap" id="container">
+            {
+              page.data.map((blogPostEntry: BlogPostEntry) => (
+                <>
+                  <div class="card bg-blue-brand text-white-50 w-96">
+                    <div class="card-body">
+                      <h2 class="card-title"> {blogPostEntry.data.title}</h2>
+                      <p>{blogPostEntry.data.description}</p>
+                      <div class="card-actions justify-end">
+                        <a href={`/${blogPostEntry.slug}`} class="no-underline">
+                          {" "}
+                          <div class="bg-yellow-brand text-black-950 p-3 rounded-xl hover:bg-secondary-300">
+                            Read More
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ))
+            }
+          </div>
+          <div id="page-numbers" class="flex justify-center list-none">
+            <Pagination
+              firstPage={page.url.prev ? `/campaigns` : null}
+              previousPage={page.url.prev ? page.url.prev : null}
+              nextPage={page.url.next ? page.url.next : null}
+              lastPage={page.url.next
+                ? `/archive/${Math.round(page.total / page.size)}`
+                : null}
+              currentPage={page.currentPage}
+              totalPages={Math.round(page.total / page.size)}
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,82 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+
+import { getEntries } from "astro:content";
+// 1. Generate a new path for every collection entry
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("players");
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+// 2. When it's time to render, you can get the entry directly from the prop
+
+interface Props {
+  entry: CollectionEntry<"players">;
+}
+
+const { entry } = Astro.props;
+
+const campaignNames = await getEntries(entry.data.campaigns);
+---
+
+<html lang="en">
+  <head>
+    <BaseHead
+      title={`Player ${entry.data.name}`}
+      description={`Player Archive for ${entry.data.name}`}
+    />
+  </head>
+
+  <body class="bg-accent-300">
+    <Header />
+    <main>
+      <div class="grid grid-cols-12">
+        <div
+          class="md:col-span-4 md:col-start-5 md:col-end-9 col-span-10 col-start-2 col-end-12"
+        >
+          <div class="flex flex-col">
+            <span class="italic">Featured Player</span>
+            <span class="xxl">
+              {entry.data.name}
+            </span>
+          </div>
+          <p>
+            <time datetime={entry.data.updatedOn.toISOString()}>
+              Updated on {
+                entry.data.updatedOn.toLocaleDateString(undefined, {
+                  dateStyle: "medium",
+                  timeZone: "UTC",
+                })
+              }</time
+            >
+          </p>
+
+          <ul class="border-l-2 border-blue-brand padding-left-xxl">
+            {
+              campaignNames.length > 0 ? (
+                campaignNames.map((campaign) => (
+                  <li class="capitalize">
+                    <a
+                      href={`/campaigns/${campaign.id}`}
+                      title={`View posts from "${campaign.data.title}"`}
+                    >
+                      {campaign.data.title}
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <li>No campaigns found.</li>
+              )
+            }
+          </ul>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

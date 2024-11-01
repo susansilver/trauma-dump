@@ -1,0 +1,54 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import Header from "../../components/Header.astro";
+
+const allCampaigns = await getCollection("campaignsList");
+
+const sortedPosts = allCampaigns
+  .filter((campaign) => campaign.data.title !== "none") // Filter out campaigns with title set to "None"
+  .sort((a, b) => {
+    // Sort by 'order' first
+    if (a.data.order !== b.data.order) {
+      return a.data.order - b.data.order;
+    }
+    // If 'order' is the same, then sort by 'date'
+    const dateA = a.data.date ? a.data.date.valueOf() : 0; // use 0 if date is undefined
+    const dateB = b.data.date ? b.data.date.valueOf() : 0; // use 0 if date is undefined
+
+    return dateA - dateB;
+  });
+---
+
+<html lang="en">
+  <head>
+    <BaseHead
+      title="All Campaigns"
+      description="An index of all the Dimension 20 campaigns"
+    />
+  </head>
+
+  <body class="bg-accent-300">
+    <Header />
+    <main>
+      <div class="grid grid-cols-12">
+        <div
+          class="md:col-span-4 md:col-start-5 md:col-end-9 col-span-10 col-start-2 col-end-12"
+        >
+          <h1>Campaigns in Order</h1>
+          <ul class="border-l-2 border-blue-brand padding-left-xxl">
+            {
+              sortedPosts.map((post) => (
+                <>
+                  <li>
+                    <a href={`/campaigns/${post.id}`}>{post.data.title}</a>
+                  </li>
+                </>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

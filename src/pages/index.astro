@@ -1,0 +1,165 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { getEntry } from "astro:content";
+
+const entry = await getEntry("blog", "post-one");
+const campaignData = await getEntry(entry.data.getRef);
+
+const { Content } = await entry.render();
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title="Home" description="A Dimension20 Fansite" />
+  </head>
+
+  <body class="bg-accent-300">
+    <Header />
+    <main>
+      <article>
+        <div class="grid grid-cols-12">
+          <div
+            class="lg:col-span-8 lg:col-start-3 lg:col-end-11 col-span-10 col-start-2 col-end-12"
+          >
+            <h1>{entry.data.title}</h1>
+            <div>
+              by Suzza Silver ✪ <time
+                datetime={new Date(entry.data.pubDate).toISOString()}
+              >
+                Published on {
+                  new Date(entry.data.pubDate).toLocaleDateString(undefined, {
+                    dateStyle: "medium",
+                    timeZone: "UTC",
+                  })
+                }
+              </time>
+              <div
+                class="border-l-2 border-blue-brand padding-left-xxl text-black-950 paragraph-width"
+              >
+                <Content />
+                <div class="flex flex-row justify-between items-center">
+                  {
+                    entry.data.prev && entry.data.prev.length > 0 && (
+                      <a
+                        href={entry.data.prev}
+                        class="no-underline
+  text-white-50
+  hover:text-primary-300
+  visited:text-white-50
+  p-3
+  bg-blue-brand rounded-full"
+                      >
+                        <div class="max-w-fit">❮ Prev Episode</div>
+                      </a>
+                    )
+                  }
+                  {
+                    entry.data.next && entry.data.next.length > 0 && (
+                      <a
+                        href={entry.data.next}
+                        class="no-underline
+  text-white-50
+  hover:text-primary-300
+  visited:text-white-50
+  p-3
+  bg-blue-brand rounded-full"
+                      >
+                        <div class="max-w-fit">Next Episode ❯</div>
+                      </a>
+                    )
+                  }
+                </div>
+              </div>
+              <aside>
+                <div
+                  id="meta"
+                  class="flex lg:flex-row flex-col gap-5 capitalize margin-top-xxl"
+                >
+                  {
+                    campaignData?.data.title !== "none" && (
+                      <p>
+                        Campaign:
+                        <a
+                          href={`/campaigns/${entry.data.campaign}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData?.data.title}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.dm !== "none" && (
+                      <p>
+                        GM:
+                        <a
+                          href={`/gm/${campaignData?.data.dm}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData?.data.dm.replace(/-/g, " ")}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.players &&
+                      campaignData.data.players[0] !== "none" && (
+                        <p>
+                          Players:
+                          <ul class="flex lg:flex-row flex-col flex-wrap gap-2 list-none lg:w-52">
+                            {campaignData.data.players.map((player) => (
+                              <li>
+                                <a
+                                  href={`/players/${player}`}
+                                  class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                                >
+                                  {player.replace(/-/g, " ")}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </p>
+                      )
+                  }
+
+                  {
+                    campaignData?.data.type !== "none" && (
+                      <p>
+                        Type:
+                        <a
+                          href={`/type/${campaignData?.data.type}`}
+                          class="text-white-50 hover:text-primary-300 visited:text-white-50 p-3 bg-blue-brand"
+                        >
+                          {campaignData?.data.type.replace(/-/g, " ")}
+                        </a>
+                      </p>
+                    )
+                  }
+
+                  {
+                    campaignData?.data.series &&
+                      campaignData.data.series !== "none" && (
+                        <p>
+                          Series:
+                          <span class="text-white-50 p-3 bg-blue-brand">
+                            {campaignData.data.series}
+                          </span>
+                        </p>
+                      )
+                  }
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <Footer />
+    </main>
+  </body>
+</html>
