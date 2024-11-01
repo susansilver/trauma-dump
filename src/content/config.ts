@@ -1,7 +1,8 @@
 import { defineCollection, z, reference } from "astro:content";
+import { glob } from "astro/loaders";
 
 const blog = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
   // Type-check frontmatter using a schema
   schema: z.object({
     title: z.string(),
@@ -20,7 +21,7 @@ const blog = defineCollection({
 });
 
 const players = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/players" }),
   schema: z.object({
     name: z.string(),
     campaigns: z.array(reference("campaignsList")),
@@ -32,7 +33,7 @@ const players = defineCollection({
 });
 
 const gm = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gm" }),
   schema: z.object({
     name: z.string(),
     campaigns: z.array(reference("campaignsList")),
@@ -44,7 +45,7 @@ const gm = defineCollection({
 });
 
 const type = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/type" }),
   schema: z.object({
     name: z.string(),
     campaigns: z.array(reference("campaignsList")),
@@ -56,7 +57,7 @@ const type = defineCollection({
 });
 
 const campaignsList = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.yaml", base: "./src/content/campaignsList" }),
   schema: z.object({
     title: z.string(),
     players: z.array(z.string()),

@@ -27,7 +27,7 @@ const allCampaigns = await getCollection("players");
               allCampaigns.map((post) => (
                 <>
                   <li>
-                    <a href={`/players/${post.slug}`}>{post.data.name}</a>
+                    <a href={`/players/${post.id}`}>{post.data.name}</a>
                   </li>
                 </>
               ))

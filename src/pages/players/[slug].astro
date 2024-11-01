@@ -9,7 +9,7 @@ import { getEntries } from "astro:content";
 export async function getStaticPaths() {
   const blogEntries = await getCollection("players");
   return blogEntries.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }

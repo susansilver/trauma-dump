@@ -27,7 +27,7 @@ const allCampaigns = await getCollection("type");
               allCampaigns.map((post) => (
                 <>
                   <li>
-                    <a href={`/type/${post.slug}`}>{post.data.name}</a>
+                    <a href={`/type/${post.id}`}>{post.data.name}</a>
                   </li>
                 </>
               ))
